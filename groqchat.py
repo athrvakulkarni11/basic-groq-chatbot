@@ -1,8 +1,8 @@
 import streamlit as st
 from groq import Groq
 
-# Initialize the Groq client
-client = Groq()
+API_KEY = "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"  # Replace with your actual API key
+client = Groq(api_key=API_KEY)
 
 # Function to interact with the Groq API
 def get_response_from_groq(chat_history):
@@ -16,8 +16,14 @@ def get_response_from_groq(chat_history):
         stream=False,  # Stream is not needed as Streamlit handles responses dynamically
         stop=None,
     )
-    # Return the full assistant response
-    return completion.choices[0].message["content"]
+
+    # Extract the response content safely
+    try:
+        response_content = completion.choices[0].message.content  # Use the correct attribute
+    except AttributeError as e:
+        raise ValueError(f"Unexpected response format: {completion}") from e
+
+    return response_content
 
 # Streamlit App
 def main():
@@ -39,7 +45,11 @@ def main():
             
             # Get response from the Groq model
             with st.spinner("Thinking..."):
-                bot_response = get_response_from_groq(st.session_state.chat_history)
+                try:
+                    bot_response = get_response_from_groq(st.session_state.chat_history)
+                except Exception as e:
+                    st.error(f"Error communicating with the API: {str(e)}")
+                    return
             
             # Add bot response to chat history
             st.session_state.chat_history.append({"role": "assistant", "content": bot_response})
