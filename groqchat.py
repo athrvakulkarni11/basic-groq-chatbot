@@ -1,7 +1,9 @@
 import streamlit as st
 from groq import Groq
-
-API_KEY = "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"  # Replace with your actual API key
+import os 
+from dotenv import load_dotenv
+load_dotenv()
+API_KEY = os.getenv("GROQ_API_KEY")  # Replace with your actual API key
 client = Groq(api_key=API_KEY)
 
 # Function to interact with the Groq API
